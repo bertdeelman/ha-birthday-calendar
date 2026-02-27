@@ -1,13 +1,14 @@
 # CardDAV Birthday Calendar for Home Assistant
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bertdeelman&repository=ha-birthday-calendar&category=integration)
 [![GitHub Release](https://img.shields.io/github/v/release/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/releases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/bertdeelman/ha-birthday-calendar/total)](https://github.com/bertdeelman/ha-birthday-calendar/releases)
 [![Stars](https://img.shields.io/github/stars/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/stargazers)
 [![Issues](https://img.shields.io/github/issues/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/commits)
 [![License](https://img.shields.io/github/license/bertdeelman/ha-birthday-calendar)](LICENSE)
+
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bertdeelman&repository=ha-birthday-calendar&category=integration)
 
 A Home Assistant custom integration that reads birthdays from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Compatible with all Home Assistant calendar cards and Calendar Card Pro.
 

@@ -1,12 +1,12 @@
 {
   "domain": "carddav_birthday_calendar",
   "name": "CardDAV Birthday Calendar",
-  "version": "1.1.1",
+  "version": "1.0.1",
   "config_flow": true,
-  "documentation": "https://github.com/yourusername/ha-birthday-calendar",
-  "issue_tracker": "https://github.com/yourusername/ha-birthday-calendar/issues",
+  "documentation": "https://github.com/bertdeelman/ha-birthday-calendar",
+  "issue_tracker": "https://github.com/bertdeelman/ha-birthday-calendar/issues",
   "codeowners": [
-    "@yourusername"
+    "@bertdeelman"
   ],
   "requirements": [
     "aiohttp>=3.8.0"
