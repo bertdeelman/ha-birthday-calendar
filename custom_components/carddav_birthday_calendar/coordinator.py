@@ -4,7 +4,9 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
+import aiohttp
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .carddav import Birthday, CardDAVClient
@@ -19,7 +21,6 @@ class BirthdayCalendarCoordinator(DataUpdateCoordinator[list[Birthday]]):
     def __init__(self, hass: HomeAssistant, username: str, password: str) -> None:
         self._username = username
         self._password = password
-
         super().__init__(
             hass,
             _LOGGER,
@@ -28,19 +29,18 @@ class BirthdayCalendarCoordinator(DataUpdateCoordinator[list[Birthday]]):
         )
 
     async def _async_update_data(self) -> list[Birthday]:
-        """Fetch birthday data from iCloud in executor (caldav is synchronous)."""
+        """Fetch birthday data from iCloud."""
+        session = async_get_clientsession(self.hass)
         client = CardDAVClient(
             username=self._username,
             password=self._password,
+            session=session,
         )
         try:
-            return await self.hass.async_add_executor_job(
-                lambda: self._fetch_sync(client)
-            )
+            return await client.fetch_birthdays()
+        except ValueError as err:
+            raise UpdateFailed(f"iCloud CardDAV error: {err}") from err
+        except aiohttp.ClientConnectionError as err:
+            raise UpdateFailed(f"Cannot connect to iCloud: {err}") from err
         except Exception as err:
-            raise UpdateFailed(f"Error fetching birthdays: {err}") from err
-
-    def _fetch_sync(self, client: CardDAVClient) -> list[Birthday]:
-        """Synchronous fetch - runs in executor."""
-        import asyncio
-        return asyncio.run(client.fetch_birthdays())
+            raise UpdateFailed(f"Unexpected error: {err}") from err
