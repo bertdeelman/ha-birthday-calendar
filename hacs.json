@@ -1,0 +1,9 @@
+{
+  "name": "CardDAV Birthday Calendar",
+  "content_in_root": false,
+  "homeassistant": "2023.5.0",
+  "filename": "carddav_birthday_calendar.zip",
+  "zip_release": false,
+  "domains": ["calendar"],
+  "iot_class": "cloud_polling"
+}
