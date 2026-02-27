@@ -24,8 +24,13 @@
       "init": {
         "title": "CardDAV Birthday Calendar Options",
         "data": {
-          "days_ahead": "Days ahead to load birthdays",
-          "show_age": "Show age in event title (e.g. 'John turns 35')"
+          "language": "Language for event titles",
+          "show_age": "Show age in event title",
+          "days_ahead": "Days ahead to load birthdays"
+        },
+        "data_description": {
+          "language": "English: 'Zusje turns 57' / Nederlands: 'Zusje is jarig (57)'",
+          "show_age": "Include age in the event title"
         }
       }
     }

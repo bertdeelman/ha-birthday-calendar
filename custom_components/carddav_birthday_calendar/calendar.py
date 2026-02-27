@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .carddav import Birthday
-from .const import CONF_DAYS_AHEAD, CONF_SHOW_AGE, DEFAULT_DAYS_AHEAD, DEFAULT_SHOW_AGE, DOMAIN
+from .const import CONF_DAYS_AHEAD, CONF_LANGUAGE, CONF_SHOW_AGE, DEFAULT_DAYS_AHEAD, DEFAULT_LANGUAGE, DEFAULT_SHOW_AGE, DOMAIN, LANGUAGE_NL
 from .coordinator import BirthdayCalendarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,12 +45,18 @@ def _get_next_birthday(birthday: date, reference: date) -> date:
     return next_bd
 
 
-def _build_summary(name: str, year_of_birth: int | None, event_year: int, show_age: bool) -> str:
+def _build_summary(name: str, year_of_birth: int | None, event_year: int, show_age: bool, language: str) -> str:
     """Build the event title."""
-    if show_age and year_of_birth is not None:
-        age = event_year - year_of_birth
-        return f"{name} turns {age}"
-    return f"{name}'s birthday"
+    if language == LANGUAGE_NL:
+        if show_age and year_of_birth is not None:
+            age = event_year - year_of_birth
+            return f"{name} is jarig ({age})"
+        return f"{name} is jarig"
+    else:
+        if show_age and year_of_birth is not None:
+            age = event_year - year_of_birth
+            return f"{name} turns {age}"
+        return f"{name}'s birthday"
 
 
 def _birthday_to_events(
@@ -79,7 +85,7 @@ def _birthday_to_events(
         if occurrence > end:
             break
 
-        summary = _build_summary(birthday.name, birthday.year_of_birth, year, show_age)
+        summary = _build_summary(birthday.name, birthday.year_of_birth, year, show_age, language)
 
         events.append(
             CalendarEvent(
@@ -124,6 +130,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
 
         today = date.today()
         show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
+        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
         upcoming: list[tuple[date, CalendarEvent]] = []
 
         for birthday in self.coordinator.data:
@@ -131,7 +138,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
             event = CalendarEvent(
                 start=next_bd,
                 end=next_bd + timedelta(days=1),
-                summary=_build_summary(birthday.name, birthday.year_of_birth, next_bd.year, show_age),
+                summary=_build_summary(birthday.name, birthday.year_of_birth, next_bd.year, show_age, language),
                 description=(
                     f"Birthday of {birthday.name}"
                     + (f" (born {birthday.year_of_birth})" if birthday.year_of_birth else "")
@@ -157,6 +164,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
             return []
 
         show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
+        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
         start = start_date.date()
         end = end_date.date()
         all_events: list[CalendarEvent] = []
@@ -169,3 +177,32 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         all_events.sort(key=lambda e: e.start)
         return all_events
 
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return extra attributes: list of all birthdays."""
+        if not self.coordinator.data:
+            return {}
+
+        today = date.today()
+        show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
+        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
+        birthdays_list = []
+
+        for birthday in self.coordinator.data:
+            next_bd = _get_next_birthday(birthday.birthday, today)
+            days_until = (next_bd - today).days
+            entry = {
+                "name": birthday.name,
+                "birthday": birthday.birthday.strftime("%m-%d"),
+                "next_birthday": next_bd.isoformat(),
+                "days_until": days_until,
+            }
+            if birthday.year_of_birth:
+                entry["year_of_birth"] = birthday.year_of_birth
+                if show_age:
+                    entry["age_next_birthday"] = next_bd.year - birthday.year_of_birth
+            birthdays_list.append(entry)
+
+        # Sort by days until next birthday
+        birthdays_list.sort(key=lambda x: x["days_until"])
+        return {"birthdays": birthdays_list, "total_count": len(birthdays_list)}

@@ -16,10 +16,14 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .carddav import CardDAVClient
 from .const import (
     CONF_DAYS_AHEAD,
+    CONF_LANGUAGE,
     CONF_SHOW_AGE,
     DEFAULT_DAYS_AHEAD,
+    DEFAULT_LANGUAGE,
     DEFAULT_SHOW_AGE,
     DOMAIN,
+    LANGUAGE_EN,
+    LANGUAGE_NL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -76,6 +80,7 @@ class CardDAVBirthdayCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN
                         CONF_PASSWORD: user_input[CONF_PASSWORD],
                     },
                     options={
+                        CONF_LANGUAGE: DEFAULT_LANGUAGE,
                         CONF_DAYS_AHEAD: DEFAULT_DAYS_AHEAD,
                         CONF_SHOW_AGE: DEFAULT_SHOW_AGE,
                     },
@@ -114,14 +119,9 @@ class CardDAVBirthdayCalendarOptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(
-                        CONF_DAYS_AHEAD,
-                        default=self._config_entry.options.get(CONF_DAYS_AHEAD, DEFAULT_DAYS_AHEAD),
-                    ): vol.All(int, vol.Range(min=1, max=730)),
-                    vol.Optional(
-                        CONF_SHOW_AGE,
-                        default=self._config_entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE),
-                    ): bool,
+                    vol.Optional(CONF_LANGUAGE, default=self._config_entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)): vol.In([LANGUAGE_NL, LANGUAGE_EN]),
+                    vol.Optional(CONF_SHOW_AGE, default=self._config_entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)): bool,
+                    vol.Optional(CONF_DAYS_AHEAD, default=self._config_entry.options.get(CONF_DAYS_AHEAD, DEFAULT_DAYS_AHEAD)): vol.All(int, vol.Range(min=1, max=730)),
                 }
             ),
         )
