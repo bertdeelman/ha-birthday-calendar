@@ -104,7 +104,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
     """A HA calendar entity that shows birthdays."""
 
     _attr_has_entity_name = True
-    _attr_name = "Birthdays"
+    _attr_name = "iCloud Birthdays"
     _attr_icon = "mdi:cake-variant"
 
     def __init__(
