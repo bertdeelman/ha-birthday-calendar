@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, ICLOUD_CARDDAV_URL, PLATFORMS
+from .const import DOMAIN, PLATFORMS
 from .coordinator import BirthdayCalendarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,7 +19,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator = BirthdayCalendarCoordinator(
         hass=hass,
-        url=ICLOUD_CARDDAV_URL,
         username=entry.data[CONF_USERNAME],
         password=entry.data[CONF_PASSWORD],
     )
