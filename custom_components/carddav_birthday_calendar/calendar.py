@@ -169,31 +169,3 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         all_events.sort(key=lambda e: e.start)
         return all_events
 
-    @property
-    def extra_state_attributes(self) -> dict:
-        """Return extra attributes: list of all birthdays."""
-        if not self.coordinator.data:
-            return {}
-
-        today = date.today()
-        show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
-        birthdays_list = []
-
-        for birthday in self.coordinator.data:
-            next_bd = _get_next_birthday(birthday.birthday, today)
-            days_until = (next_bd - today).days
-            entry = {
-                "name": birthday.name,
-                "birthday": birthday.birthday.strftime("%m-%d"),
-                "next_birthday": next_bd.isoformat(),
-                "days_until": days_until,
-            }
-            if birthday.year_of_birth:
-                entry["year_of_birth"] = birthday.year_of_birth
-                if show_age:
-                    entry["age_next_birthday"] = next_bd.year - birthday.year_of_birth
-            birthdays_list.append(entry)
-
-        # Sort by days until next birthday
-        birthdays_list.sort(key=lambda x: x["days_until"])
-        return {"birthdays": birthdays_list, "total_count": len(birthdays_list)}
