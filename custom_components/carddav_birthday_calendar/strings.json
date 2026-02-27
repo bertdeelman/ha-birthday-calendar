@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "CardDAV Birthday Calendar Setup",
+        "description": "Connect to your iCloud contacts to show birthdays in your Home Assistant calendar.\n\n**Important:** Use an **app-specific password**, not your regular Apple ID password.\nCreate one at [appleid.apple.com]({app_password_url}) → Sign-In and Security → App-Specific Passwords.",
+        "data": {
+          "username": "Apple ID (email)",
+          "password": "App-Specific Password",
+          "url": "CardDAV Server URL"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the CardDAV server. Check your URL.",
+      "invalid_auth": "Invalid credentials. Make sure you use an app-specific password.",
+      "unknown": "Unexpected error. Check the Home Assistant logs."
+    },
+    "abort": {
+      "already_configured": "This Apple ID is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "CardDAV Birthday Calendar Options",
+        "data": {
+          "days_ahead": "Days ahead to load birthdays",
+          "show_age": "Show age in event title (e.g. 'John turns 35')"
+        }
+      }
+    }
+  }
+}

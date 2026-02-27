@@ -1,0 +1,12 @@
+{
+  "domain": "carddav_birthday_calendar",
+  "name": "CardDAV Birthday Calendar",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/yourusername/ha-birthday-calendar",
+  "issue_tracker": "https://github.com/yourusername/ha-birthday-calendar/issues",
+  "codeowners": ["@yourusername"],
+  "requirements": ["vobject==0.9.6.1", "aiohttp>=3.8.0"],
+  "iot_class": "cloud_polling",
+  "integration_type": "service"
+}
