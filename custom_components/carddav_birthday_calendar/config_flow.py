@@ -20,7 +20,6 @@ from .const import (
     DEFAULT_DAYS_AHEAD,
     DEFAULT_SHOW_AGE,
     DOMAIN,
-    ICLOUD_CARDDAV_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,7 +36,6 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """Validate credentials by testing the iCloud connection."""
     session = async_get_clientsession(hass)
     client = CardDAVClient(
-        url=ICLOUD_CARDDAV_URL,
         username=data[CONF_USERNAME],
         password=data[CONF_PASSWORD],
         session=session,

@@ -1,7 +1,7 @@
 {
   "domain": "carddav_birthday_calendar",
   "name": "CardDAV Birthday Calendar",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "config_flow": true,
   "documentation": "https://github.com/yourusername/ha-birthday-calendar",
   "issue_tracker": "https://github.com/yourusername/ha-birthday-calendar/issues",
