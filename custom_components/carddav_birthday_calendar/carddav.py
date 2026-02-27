@@ -266,18 +266,23 @@ class CardDAVClient:
         return birthdays
 
     async def test_connection(self) -> bool:
-        """Test if the CardDAV connection works."""
+        """
+        Test if the iCloud CardDAV connection works.
+        iCloud redirects well-known, so we accept any non-403 response as success.
+        403 = wrong credentials. Network errors = cannot connect.
+        """
         try:
             async with self._session.request(
                 "PROPFIND",
-                self._base_url,
+                self._base_url + "/.well-known/carddav",
                 headers={"Depth": "0"},
                 auth=self._auth,
-                allow_redirects=True,
+                allow_redirects=False,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
                 _LOGGER.debug("Connection test -> %s", resp.status)
-                return resp.status in (200, 207, 301, 302, 303, 307, 308)
+                # 403 = definitive auth failure
+                return resp.status != 403
         except Exception as err:
             _LOGGER.debug("Connection test failed: %s", err)
             return False
