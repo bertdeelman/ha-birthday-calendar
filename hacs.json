@@ -5,5 +5,6 @@
   "filename": "carddav_birthday_calendar.zip",
   "zip_release": false,
   "domains": ["calendar"],
-  "iot_class": "cloud_polling"
+  "iot_class": "cloud_polling",
+  "icon": "icon.png"
 }

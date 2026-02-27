@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, ICLOUD_CARDDAV_URL, PLATFORMS
@@ -19,22 +19,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator = BirthdayCalendarCoordinator(
         hass=hass,
-        url=entry.data.get(CONF_URL, ICLOUD_CARDDAV_URL),
+        url=ICLOUD_CARDDAV_URL,
         username=entry.data[CONF_USERNAME],
         password=entry.data[CONF_PASSWORD],
     )
 
-    # Fetch initial data
     await coordinator.async_config_entry_first_refresh()
-
     hass.data[DOMAIN][entry.entry_id] = coordinator
-
-    # Forward the setup to the calendar platform
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    # Reload integration when options change
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
-
     return True
 
 
@@ -46,5 +39,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload the config entry when options change."""
+    """Reload when options change."""
     await hass.config_entries.async_reload(entry.entry_id)
