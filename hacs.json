@@ -7,6 +7,5 @@
   "domains": [
     "calendar"
   ],
-  "iot_class": "cloud_polling",
-  "icon": "https://raw.githubusercontent.com/bertdeelman/ha-birthday-calendar/main/icon.png"
+  "iot_class": "cloud_polling"
 }
