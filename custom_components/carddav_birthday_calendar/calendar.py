@@ -6,13 +6,21 @@ from datetime import date, datetime, timedelta
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .carddav import Birthday
-from .const import CONF_DAYS_AHEAD, CONF_LANGUAGE, CONF_SHOW_AGE, DEFAULT_DAYS_AHEAD, DEFAULT_LANGUAGE, DEFAULT_SHOW_AGE, DOMAIN, LANGUAGE_NL
+from .const import (
+    CONF_DAYS_AHEAD,
+    CONF_LANGUAGE,
+    CONF_SHOW_AGE,
+    DEFAULT_DAYS_AHEAD,
+    DEFAULT_LANGUAGE,
+    DEFAULT_SHOW_AGE,
+    DOMAIN,
+    LANGUAGE_NL,
+)
 from .coordinator import BirthdayCalendarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,15 +41,12 @@ def _get_next_birthday(birthday: date, reference: date) -> date:
     try:
         next_bd = birthday.replace(year=reference.year)
     except ValueError:
-        # Feb 29 in non-leap year -> use Feb 28
         next_bd = date(reference.year, 2, 28)
-
     if next_bd < reference:
         try:
             next_bd = birthday.replace(year=reference.year + 1)
         except ValueError:
             next_bd = date(reference.year + 1, 2, 28)
-
     return next_bd
 
 
@@ -59,25 +64,33 @@ def _build_summary(name: str, year_of_birth: int | None, event_year: int, show_a
         return f"{name}'s birthday"
 
 
+def _build_description(name: str, year_of_birth: int | None, language: str) -> str:
+    """Build the event description."""
+    if language == LANGUAGE_NL:
+        if year_of_birth:
+            return f"Verjaardag van {name} (geboren {year_of_birth})"
+        return f"Verjaardag van {name}"
+    else:
+        if year_of_birth:
+            return f"Birthday of {name} (born {year_of_birth})"
+        return f"Birthday of {name}"
+
+
 def _birthday_to_events(
     birthday: Birthday,
     start: date,
     end: date,
     show_age: bool,
+    language: str,
 ) -> list[CalendarEvent]:
-    """
-    Generate CalendarEvent instances for a birthday in the given date range.
-    Birthdays repeat yearly, so we may get 0, 1, or 2 occurrences in a range.
-    """
+    """Generate CalendarEvent instances for a birthday in the given date range."""
     events: list[CalendarEvent] = []
-    bd_date = birthday.birthday  # The day/month (year may be placeholder 2000)
+    bd_date = birthday.birthday
 
-    # Check occurrences for the years covered by start..end
     for year in range(start.year, end.year + 2):
         try:
             occurrence = bd_date.replace(year=year)
         except ValueError:
-            # Feb 29 in non-leap year
             occurrence = date(year, 2, 28)
 
         if occurrence < start:
@@ -85,21 +98,12 @@ def _birthday_to_events(
         if occurrence > end:
             break
 
-        summary = _build_summary(birthday.name, birthday.year_of_birth, year, show_age, language)
-
         events.append(
             CalendarEvent(
                 start=occurrence,
-                end=occurrence + timedelta(days=1),  # All-day event: end is exclusive next day
-                summary=summary,
-                description=(
-                    f"Birthday of {birthday.name}"
-                    + (
-                        f" (born {birthday.year_of_birth})"
-                        if birthday.year_of_birth
-                        else ""
-                    )
-                ),
+                end=occurrence + timedelta(days=1),
+                summary=_build_summary(birthday.name, birthday.year_of_birth, year, show_age, language),
+                description=_build_description(birthday.name, birthday.year_of_birth, language),
             )
         )
 
@@ -113,14 +117,17 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
     _attr_name = "iCloud Birthdays"
     _attr_icon = "mdi:cake-variant"
 
-    def __init__(
-        self,
-        coordinator: BirthdayCalendarCoordinator,
-        entry: ConfigEntry,
-    ) -> None:
+    def __init__(self, coordinator: BirthdayCalendarCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_carddav_birthday_calendar"
+
+    def _get_options(self) -> tuple[bool, str, int]:
+        """Return show_age, language, days_ahead from options."""
+        show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
+        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
+        days_ahead = self._entry.options.get(CONF_DAYS_AHEAD, DEFAULT_DAYS_AHEAD)
+        return show_age, language, days_ahead
 
     @property
     def event(self) -> CalendarEvent | None:
@@ -129,27 +136,25 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
             return None
 
         today = date.today()
-        show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
-        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
+        show_age, language, days_ahead = self._get_options()
+        cutoff = today + timedelta(days=days_ahead)
         upcoming: list[tuple[date, CalendarEvent]] = []
 
         for birthday in self.coordinator.data:
             next_bd = _get_next_birthday(birthday.birthday, today)
+            if next_bd > cutoff:
+                continue
             event = CalendarEvent(
                 start=next_bd,
                 end=next_bd + timedelta(days=1),
                 summary=_build_summary(birthday.name, birthday.year_of_birth, next_bd.year, show_age, language),
-                description=(
-                    f"Birthday of {birthday.name}"
-                    + (f" (born {birthday.year_of_birth})" if birthday.year_of_birth else "")
-                ),
+                description=_build_description(birthday.name, birthday.year_of_birth, language),
             )
             upcoming.append((next_bd, event))
 
         if not upcoming:
             return None
 
-        # Return the soonest upcoming birthday
         upcoming.sort(key=lambda x: x[0])
         return upcoming[0][1]
 
@@ -163,16 +168,13 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         if not self.coordinator.data:
             return []
 
-        show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
-        language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
+        show_age, language, _ = self._get_options()
         start = start_date.date()
         end = end_date.date()
         all_events: list[CalendarEvent] = []
 
         for birthday in self.coordinator.data:
-            events = _birthday_to_events(birthday, start, end, show_age, language)
-            all_events.extend(events)
+            all_events.extend(_birthday_to_events(birthday, start, end, show_age, language))
 
-        # Sort by date
         all_events.sort(key=lambda e: e.start)
         return all_events
