@@ -8,30 +8,39 @@
 [![Last Commit](https://img.shields.io/github/last-commit/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/commits)
 [![License](https://img.shields.io/github/license/bertdeelman/ha-birthday-calendar)](LICENSE)
 
-[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bertdeelman&repository=ha-birthday-calendar&category=integration)
+A Home Assistant custom integration that reads birthdays and custom dates from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Compatible with all Home Assistant calendar cards.
 
-A Home Assistant custom integration that reads birthdays from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Compatible with all Home Assistant calendar cards and Calendar Card Pro.
-
-**Author:** Bert Deelman  
-**GitHub:** [github.com/bertdeelman/ha-birthday-calendar](https://github.com/bertdeelman/ha-birthday-calendar)
+**Author:** Bert Deelman
 
 ---
 
 ## Features
 
-- Reads birthdays directly from iCloud Contacts via CardDAV
+- Reads birthdays and custom dates (anniversary, sterfdag, etc.) from iCloud Contacts via CardDAV
 - Native Home Assistant calendar entity
 - Yearly recurring all-day events
 - Configurable language: English or Dutch
 - Configurable event title with or without age
 - Compatible with all HA calendar cards
 
+## Installation
+
+### Via HACS (recommended)
+
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bertdeelman&repository=ha-birthday-calendar&category=integration)
+
+1. HACS → Integrations → Custom repositories
+2. Add `https://github.com/bertdeelman/ha-birthday-calendar` as **Integration**
+3. Download **CardDAV Birthday Calendar**
+4. Restart Home Assistant
+
 ## Event title examples
 
 | Language | With age | Without age |
 |----------|----------|-------------|
-| English  | Zusje turns 57 | Zusje's birthday |
-| Dutch    | Zusje is jarig (57) | Zusje is jarig |
+| English  | Zusje birthday (57) | Zusje birthday |
+| Dutch    | Zusje verjaardag (57) | Zusje verjaardag |
+| Custom   | Jan van der Harst trouwdag | Jan van der Harst sterfdag |
 
 ## Installation
 
