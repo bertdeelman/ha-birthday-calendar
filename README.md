@@ -10,41 +10,22 @@
 
 A Home Assistant custom integration that reads birthdays and custom dates from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Compatible with all Home Assistant calendar cards.
 
-**Author:** Bert Deelman
-
 ---
 
 ## Features
 
-- Reads birthdays and custom dates (anniversary, sterfdag, etc.) from iCloud Contacts via CardDAV
+- Reads birthdays and custom dates (anniversary, memorial day, etc.) from iCloud Contacts via CardDAV
 - Native Home Assistant calendar entity
 - Yearly recurring all-day events
 - Configurable language: English or Dutch
 - Configurable event title with or without age
-- Compatible with all HA calendar cards
+- Compatible with all Home Assistant calendar cards
 
 ## Installation
 
 ### Via HACS (recommended)
 
 [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bertdeelman&repository=ha-birthday-calendar&category=integration)
-
-1. HACS → Integrations → Custom repositories
-2. Add `https://github.com/bertdeelman/ha-birthday-calendar` as **Integration**
-3. Download **CardDAV Birthday Calendar**
-4. Restart Home Assistant
-
-## Event title examples
-
-| Language | With age | Without age |
-|----------|----------|-------------|
-| English  | Emma birthday (32) | Emma birthday |
-| Dutch    | Emma verjaardag (32) | Emma verjaardag |
-| Custom   | Thomas en Lisa huwelijk | Opa herdenkingsdag |
-
-## Installation
-
-### Via HACS (recommended)
 
 1. HACS → Integrations → Custom repositories
 2. Add `https://github.com/bertdeelman/ha-birthday-calendar` as **Integration**
@@ -69,6 +50,14 @@ After setup, click **Configure** on the integration to set:
 - **Language** — English or Dutch
 - **Show age** — Include age in the event title
 - **Days ahead** — How far ahead to load events (default: 365)
+
+## Event title examples
+
+| Language | With age | Without age |
+|----------|----------|-------------|
+| English  | Emma birthday (32) | Emma birthday |
+| Dutch    | Emma birthday (32) | Emma birthday |
+| Custom   | Thomas and Lisa anniversary | Grandpa memorial day |
 
 ## Credits
 
