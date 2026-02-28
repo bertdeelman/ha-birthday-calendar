@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .carddav import Birthday
+from .carddav import ContactDate
 from .const import (
     CONF_DAYS_AHEAD,
     CONF_LANGUAGE,
@@ -25,71 +25,84 @@ from .coordinator import BirthdayCalendarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+# Label translations for built-in labels
+LABEL_TRANSLATIONS = {
+    "bday": {"nl": "verjaardag", "en": "birthday"},
+    "anniversary": {"nl": "trouwdag", "en": "anniversary"},
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the CardDAV Birthday Calendar entity from a config entry."""
     coordinator: BirthdayCalendarCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities([BirthdayCalendarEntity(coordinator, entry)], True)
 
 
-def _get_next_birthday(birthday: date, reference: date) -> date:
-    """Return the next occurrence of a birthday from reference date."""
+def _get_next_occurrence(d: date, reference: date) -> date:
+    """Return the next occurrence of a date from reference date."""
     try:
-        next_bd = birthday.replace(year=reference.year)
+        next_d = d.replace(year=reference.year)
     except ValueError:
-        next_bd = date(reference.year, 2, 28)
-    if next_bd < reference:
+        next_d = date(reference.year, 2, 28)
+    if next_d < reference:
         try:
-            next_bd = birthday.replace(year=reference.year + 1)
+            next_d = d.replace(year=reference.year + 1)
         except ValueError:
-            next_bd = date(reference.year + 1, 2, 28)
-    return next_bd
+            next_d = date(reference.year + 1, 2, 28)
+    return next_d
 
 
-def _build_summary(name: str, year_of_birth: int | None, event_year: int, show_age: bool, language: str) -> str:
-    """Build the event title."""
+def _translate_label(label: str, language: str) -> str:
+    """Translate built-in labels, pass through custom labels as-is."""
+    if label in LABEL_TRANSLATIONS:
+        return LABEL_TRANSLATIONS[label][language]
+    return label
+
+
+def _build_summary(entry: ContactDate, event_year: int, show_age: bool, language: str) -> str:
+    """Build event title."""
+    label = _translate_label(entry.label, language)
     if language == LANGUAGE_NL:
-        if show_age and year_of_birth is not None:
-            age = event_year - year_of_birth
-            return f"{name} is jarig ({age})"
-        return f"{name} is jarig"
+        if show_age and entry.year_of_birth and entry.label == "bday":
+            age = event_year - entry.year_of_birth
+            return f"{entry.name} {label} ({age})"
+        return f"{entry.name} {label}"
     else:
-        if show_age and year_of_birth is not None:
-            age = event_year - year_of_birth
-            return f"{name} turns {age}"
-        return f"{name}'s birthday"
+        if show_age and entry.year_of_birth and entry.label == "bday":
+            age = event_year - entry.year_of_birth
+            return f"{entry.name} {label} ({age})"
+        return f"{entry.name} {label}"
 
 
-def _build_description(name: str, year_of_birth: int | None, language: str) -> str:
-    """Build the event description."""
+def _build_description(entry: ContactDate, language: str) -> str:
+    """Build event description."""
+    label = _translate_label(entry.label, language)
     if language == LANGUAGE_NL:
-        if year_of_birth:
-            return f"Verjaardag van {name} (geboren {year_of_birth})"
-        return f"Verjaardag van {name}"
+        if entry.year_of_birth and entry.label == "bday":
+            return f"{label.capitalize()} van {entry.name} (geboren {entry.year_of_birth})"
+        return f"{label.capitalize()} van {entry.name}"
     else:
-        if year_of_birth:
-            return f"Birthday of {name} (born {year_of_birth})"
-        return f"Birthday of {name}"
+        if entry.year_of_birth and entry.label == "bday":
+            return f"{label.capitalize()} of {entry.name} (born {entry.year_of_birth})"
+        return f"{label.capitalize()} of {entry.name}"
 
 
-def _birthday_to_events(
-    birthday: Birthday,
+def _entry_to_events(
+    entry: ContactDate,
     start: date,
     end: date,
     show_age: bool,
     language: str,
 ) -> list[CalendarEvent]:
-    """Generate CalendarEvent instances for a birthday in the given date range."""
+    """Generate CalendarEvent instances for a contact date in the given range."""
     events: list[CalendarEvent] = []
-    bd_date = birthday.birthday
 
     for year in range(start.year, end.year + 2):
         try:
-            occurrence = bd_date.replace(year=year)
+            occurrence = entry.date.replace(year=year)
         except ValueError:
             occurrence = date(year, 2, 28)
 
@@ -102,8 +115,8 @@ def _birthday_to_events(
             CalendarEvent(
                 start=occurrence,
                 end=occurrence + timedelta(days=1),
-                summary=_build_summary(birthday.name, birthday.year_of_birth, year, show_age, language),
-                description=_build_description(birthday.name, birthday.year_of_birth, language),
+                summary=_build_summary(entry, year, show_age, language),
+                description=_build_description(entry, language),
             )
         )
 
@@ -111,7 +124,7 @@ def _birthday_to_events(
 
 
 class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], CalendarEntity):
-    """A HA calendar entity that shows birthdays."""
+    """HA calendar entity showing birthdays and custom dates."""
 
     _attr_icon = "mdi:cake-variant"
 
@@ -122,7 +135,6 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         self._attr_name = entry.title
 
     def _get_options(self) -> tuple[bool, str, int]:
-        """Return show_age, language, days_ahead from options."""
         show_age = self._entry.options.get(CONF_SHOW_AGE, DEFAULT_SHOW_AGE)
         language = self._entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE)
         days_ahead = self._entry.options.get(CONF_DAYS_AHEAD, DEFAULT_DAYS_AHEAD)
@@ -130,7 +142,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
 
     @property
     def event(self) -> CalendarEvent | None:
-        """Return the next upcoming birthday event."""
+        """Return the next upcoming event."""
         if not self.coordinator.data:
             return None
 
@@ -139,17 +151,17 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         cutoff = today + timedelta(days=days_ahead)
         upcoming: list[tuple[date, CalendarEvent]] = []
 
-        for birthday in self.coordinator.data:
-            next_bd = _get_next_birthday(birthday.birthday, today)
-            if next_bd > cutoff:
+        for entry in self.coordinator.data:
+            next_d = _get_next_occurrence(entry.date, today)
+            if next_d > cutoff:
                 continue
             event = CalendarEvent(
-                start=next_bd,
-                end=next_bd + timedelta(days=1),
-                summary=_build_summary(birthday.name, birthday.year_of_birth, next_bd.year, show_age, language),
-                description=_build_description(birthday.name, birthday.year_of_birth, language),
+                start=next_d,
+                end=next_d + timedelta(days=1),
+                summary=_build_summary(entry, next_d.year, show_age, language),
+                description=_build_description(entry, language),
             )
-            upcoming.append((next_bd, event))
+            upcoming.append((next_d, event))
 
         if not upcoming:
             return None
@@ -163,7 +175,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         start_date: datetime,
         end_date: datetime,
     ) -> list[CalendarEvent]:
-        """Return all birthday events between start_date and end_date."""
+        """Return all events between start_date and end_date."""
         if not self.coordinator.data:
             return []
 
@@ -172,8 +184,8 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         end = end_date.date()
         all_events: list[CalendarEvent] = []
 
-        for birthday in self.coordinator.data:
-            all_events.extend(_birthday_to_events(birthday, start, end, show_age, language))
+        for entry in self.coordinator.data:
+            all_events.extend(_entry_to_events(entry, start, end, show_age, language))
 
         all_events.sort(key=lambda e: e.start)
         return all_events

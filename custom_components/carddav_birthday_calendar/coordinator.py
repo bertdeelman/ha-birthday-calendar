@@ -9,27 +9,24 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .carddav import Birthday, CardDAVClient
+from .carddav import ContactDate, CardDAVClient
 from .const import DEFAULT_UPDATE_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class BirthdayCalendarCoordinator(DataUpdateCoordinator[list[Birthday]]):
-    """Coordinator that fetches birthday data from iCloud CardDAV."""
+class BirthdayCalendarCoordinator(DataUpdateCoordinator[list[ContactDate]]):
+    """Coordinator that fetches contact dates from iCloud CardDAV."""
 
     def __init__(self, hass: HomeAssistant, username: str, password: str) -> None:
         self._username = username
         self._password = password
         super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
+            hass, _LOGGER, name=DOMAIN,
             update_interval=timedelta(seconds=DEFAULT_UPDATE_INTERVAL),
         )
 
-    async def _async_update_data(self) -> list[Birthday]:
-        """Fetch birthday data from iCloud."""
+    async def _async_update_data(self) -> list[ContactDate]:
         session = async_get_clientsession(self.hass)
         client = CardDAVClient(
             username=self._username,
@@ -37,7 +34,7 @@ class BirthdayCalendarCoordinator(DataUpdateCoordinator[list[Birthday]]):
             session=session,
         )
         try:
-            return await client.fetch_birthdays()
+            return await client.fetch_dates()
         except ValueError as err:
             raise UpdateFailed(f"iCloud CardDAV error: {err}") from err
         except aiohttp.ClientConnectionError as err:
