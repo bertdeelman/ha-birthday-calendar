@@ -170,7 +170,7 @@ class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], Cal
         all_events: list[CalendarEvent] = []
 
         for birthday in self.coordinator.data:
-            events = _birthday_to_events(birthday, start, end, show_age)
+            events = _birthday_to_events(birthday, start, end, show_age, language)
             all_events.extend(events)
 
         # Sort by date
