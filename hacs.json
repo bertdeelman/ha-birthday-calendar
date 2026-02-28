@@ -4,7 +4,9 @@
   "homeassistant": "2023.5.0",
   "filename": "carddav_birthday_calendar.zip",
   "zip_release": false,
-  "domains": ["calendar"],
+  "domains": [
+    "calendar"
+  ],
   "iot_class": "cloud_polling",
-  "icon": "icon.png"
+  "icon": "https://raw.githubusercontent.com/bertdeelman/ha-birthday-calendar/main/icon.png"
 }
