@@ -62,6 +62,25 @@ class CardDAVClient:
             _LOGGER.debug("Partition: %s, Base: %s", partition, base)
             return base
 
+    def _xml_find_text(self, xml_text: str, *tags: str) -> str | None:
+        """Find text content of first matching element using ElementTree."""
+        import xml.etree.ElementTree as ET
+        try:
+            root = ET.fromstring(xml_text)
+        except ET.ParseError as err:
+            _LOGGER.debug("XML parse error: %s", err)
+            return None
+        namespaces = {
+            "D": "DAV:",
+            "C": "urn:ietf:params:xml:ns:carddav",
+        }
+        for tag in tags:
+            for elem in root.iter():
+                local = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
+                if local == tag and elem.text and elem.text.strip():
+                    return elem.text.strip()
+        return None
+
     async def _get_principal(self, base: str) -> str:
         """Step 2: Get current user principal path."""
         async with self._session.request(
@@ -73,10 +92,9 @@ class CardDAVClient:
             timeout=aiohttp.ClientTimeout(total=15),
         ) as resp:
             text = await resp.text()
-            match = re.search(r"<href>(/\d+/principal/)</href>", text)
-            if not match:
+            principal = self._xml_find_text(text, "href")
+            if not principal or "principal" not in principal:
                 raise ValueError(f"Could not find principal URL in: {text[:500]}")
-            principal = match.group(1)
             _LOGGER.debug("Principal: %s", principal)
             return principal
 
@@ -91,10 +109,9 @@ class CardDAVClient:
             timeout=aiohttp.ClientTimeout(total=15),
         ) as resp:
             text = await resp.text()
-            match = re.search(r"<href[^>]*>(https://[^<]+carddavhome[^<]*)</href>", text)
-            if not match:
+            home = self._xml_find_text(text, "href")
+            if not home or "carddavhome" not in home:
                 raise ValueError(f"Could not find addressbook home in: {text[:500]}")
-            home = match.group(1)
             _LOGGER.debug("Addressbook home: %s", home)
             return home
 

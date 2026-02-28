@@ -113,14 +113,13 @@ def _birthday_to_events(
 class BirthdayCalendarEntity(CoordinatorEntity[BirthdayCalendarCoordinator], CalendarEntity):
     """A HA calendar entity that shows birthdays."""
 
-    _attr_has_entity_name = True
-    _attr_name = "iCloud Birthdays"
     _attr_icon = "mdi:cake-variant"
 
     def __init__(self, coordinator: BirthdayCalendarCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_carddav_birthday_calendar"
+        self._attr_name = entry.title
 
     def _get_options(self) -> tuple[bool, str, int]:
         """Return show_age, language, days_ahead from options."""
