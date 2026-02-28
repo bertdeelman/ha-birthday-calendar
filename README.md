@@ -38,9 +38,9 @@ A Home Assistant custom integration that reads birthdays and custom dates from y
 
 | Language | With age | Without age |
 |----------|----------|-------------|
-| English  | Zusje birthday (57) | Zusje birthday |
-| Dutch    | Zusje verjaardag (57) | Zusje verjaardag |
-| Custom   | Jan van der Harst trouwdag | Jan van der Harst sterfdag |
+| English  | Emma birthday (32) | Emma birthday |
+| Dutch    | Emma verjaardag (32) | Emma verjaardag |
+| Custom   | Thomas en Lisa huwelijk | Opa herdenkingsdag |
 
 ## Installation
 
