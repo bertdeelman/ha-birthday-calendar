@@ -1,4 +1,4 @@
-"""CardDAV Birthday Calendar integration for Home Assistant."""
+"""CardDAV Contact Calendar integration for Home Assistant."""
 from __future__ import annotations
 
 import logging
@@ -12,10 +12,22 @@ from .coordinator import BirthdayCalendarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+NEW_TITLE = "iCloud Contact Calendar"
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate old config entries."""
+    return True
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up CardDAV Birthday Calendar from a config entry."""
+    """Set up CardDAV Contact Calendar from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+
+    # Migrate old title if it contains email address or old name
+    if "@" in entry.title or "Birthday" in entry.title:
+        hass.config_entries.async_update_entry(entry, title=NEW_TITLE)
+        _LOGGER.info("Updated integration title to '%s'", NEW_TITLE)
 
     coordinator = BirthdayCalendarCoordinator(
         hass=hass,
