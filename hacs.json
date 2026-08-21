@@ -1,10 +1,8 @@
 {
-  "name": "CardDAV Birthday Calendar",
+  "name": "CardDAV Contact Calendar",
   "content_in_root": false,
   "homeassistant": "2023.5.0",
   "zip_release": false,
-  "domains": [
-    "carddav_birthday_calendar"
-  ],
+  "domains": ["carddav_birthday_calendar"],
   "iot_class": "cloud_polling"
 }

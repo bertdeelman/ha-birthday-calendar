@@ -1,4 +1,4 @@
-# CardDAV Birthday Calendar for Home Assistant
+# CardDAV Contact Calendar for Home Assistant
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/releases)
@@ -8,7 +8,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/bertdeelman/ha-birthday-calendar)](https://github.com/bertdeelman/ha-birthday-calendar/commits)
 [![License](https://img.shields.io/github/license/bertdeelman/ha-birthday-calendar)](LICENSE)
 
-A Home Assistant custom integration that reads birthdays and custom dates from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Compatible with all Home Assistant calendar cards.
+A Home Assistant custom integration that reads contact dates from your **iCloud Contacts** via CardDAV and exposes them as a native HA calendar entity. Shows birthdays, anniversaries, memorial days and any other custom dates you have stored in your contacts.
 
 ---
 
@@ -29,7 +29,7 @@ A Home Assistant custom integration that reads birthdays and custom dates from y
 
 1. HACS → Integrations → Custom repositories
 2. Add `https://github.com/bertdeelman/ha-birthday-calendar` as **Integration**
-3. Download **CardDAV Birthday Calendar**
+3. Download **CardDAV Contact Calendar**
 4. Restart Home Assistant
 
 ### Manual
@@ -38,7 +38,7 @@ Copy `custom_components/carddav_birthday_calendar` to your HA `custom_components
 
 ## Setup
 
-1. Settings → Devices & Services → Add Integration → **CardDAV Birthday Calendar**
+1. Settings → Devices & Services → Add Integration → **CardDAV Contact Calendar**
 2. Enter your **Apple ID** (email address)
 3. Enter an **app-specific password** — not your regular Apple ID password!
    - Create one at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords
@@ -48,7 +48,7 @@ Copy `custom_components/carddav_birthday_calendar` to your HA `custom_components
 After setup, click **Configure** on the integration to set:
 
 - **Language** — English or Dutch
-- **Show age** — Include age in the event title
+- **Show age** — Include age in the event title (birthdays only)
 - **Days ahead** — How far ahead to load events (default: 365)
 
 ## Event title examples
@@ -56,7 +56,7 @@ After setup, click **Configure** on the integration to set:
 | Language | With age | Without age |
 |----------|----------|-------------|
 | English  | Emma birthday (32) | Emma birthday |
-| Dutch    | Emma birthday (32) | Emma birthday |
+| Dutch    | Emma verjaardag (32) | Emma verjaardag |
 | Custom   | Thomas and Lisa anniversary | Grandpa memorial day |
 
 ## Credits

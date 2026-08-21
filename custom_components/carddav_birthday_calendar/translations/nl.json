@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "CardDAV Verjaardagskalender",
-        "description": "Verbind met je iCloud-contacten om verjaardagen en jubilea te tonen in Home Assistant.\n\n**Belangrijk:** Gebruik een **app-specifiek wachtwoord**, niet je gewone Apple ID-wachtwoord.\nMaak er een aan op [appleid.apple.com]({app_password_url}) → Inloggen en beveiliging → App-specifieke wachtwoorden.",
+        "title": "CardDAV Contactkalender",
+        "description": "Verbind met je iCloud-contacten om verjaardagen, jubilea en andere datums te tonen in Home Assistant.\n\n**Belangrijk:** Gebruik een **app-specifiek wachtwoord**, niet je gewone Apple ID-wachtwoord.\nMaak er een aan op [appleid.apple.com]({app_password_url}) → Inloggen en beveiliging → App-specifieke wachtwoorden.",
         "data": {
           "username": "Apple ID (e-mailadres)",
           "password": "App-specifiek wachtwoord"
@@ -22,7 +22,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Verjaardagskalender opties",
+        "title": "CardDAV Contactkalender opties",
         "data": {
           "language": "Taal voor evenementtitels",
           "show_age": "Toon leeftijd in evenementtitel",
