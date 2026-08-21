@@ -19,7 +19,6 @@ from .const import (
     DEFAULT_LANGUAGE,
     DEFAULT_SHOW_AGE,
     DOMAIN,
-    LANGUAGE_NL,
 )
 from .coordinator import BirthdayCalendarCoordinator
 
@@ -29,6 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 LABEL_TRANSLATIONS = {
     "bday": {"nl": "verjaardag", "en": "birthday"},
     "anniversary": {"nl": "trouwdag", "en": "anniversary"},
+    "other": {"nl": "overig", "en": "other"},
 }
 
 
@@ -65,22 +65,16 @@ def _translate_label(label: str, language: str) -> str:
 def _build_summary(entry: ContactDate, event_year: int, show_age: bool, language: str) -> str:
     """Build event title."""
     label = _translate_label(entry.label, language)
-    if language == LANGUAGE_NL:
-        if show_age and entry.year_of_birth and entry.label == "bday":
-            age = event_year - entry.year_of_birth
-            return f"{entry.name} {label} ({age})"
-        return f"{entry.name} {label}"
-    else:
-        if show_age and entry.year_of_birth and entry.label == "bday":
-            age = event_year - entry.year_of_birth
-            return f"{entry.name} {label} ({age})"
-        return f"{entry.name} {label}"
+    if show_age and entry.year_of_birth and entry.label == "bday":
+        age = event_year - entry.year_of_birth
+        return f"{entry.name} {label} ({age})"
+    return f"{entry.name} {label}"
 
 
 def _build_description(entry: ContactDate, language: str) -> str:
     """Build event description."""
     label = _translate_label(entry.label, language)
-    if language == LANGUAGE_NL:
+    if language == "nl":
         if entry.year_of_birth and entry.label == "bday":
             return f"{label.capitalize()} van {entry.name} (geboren {entry.year_of_birth})"
         return f"{label.capitalize()} van {entry.name}"

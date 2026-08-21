@@ -7,9 +7,6 @@ CONF_DAYS_AHEAD = "days_ahead"
 CONF_SHOW_AGE = "show_age"
 CONF_LANGUAGE = "language"
 
-# iCloud CardDAV
-ICLOUD_CARDDAV_URL = "https://contacts.icloud.com"
-
 # Language options
 LANGUAGE_EN = "en"
 LANGUAGE_NL = "nl"

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from typing import Optional
 
@@ -11,11 +11,11 @@ import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
-# Apple's built-in label translations
-APPLE_LABELS = {
-    "_$!<Anniversary>!$_": {"nl": "trouwdag", "en": "anniversary"},
-    "_$!<Birthday>!$_": {"nl": "verjaardag", "en": "birthday"},
-    "_$!<Other>!$_": {"nl": "overig", "en": "other"},
+# Apple's built-in labels mapped to canonical keys
+APPLE_LABEL_KEYS = {
+    "_$!<Anniversary>!$_": "anniversary",
+    "_$!<Birthday>!$_": "bday",
+    "_$!<Other>!$_": "other",
 }
 
 
@@ -26,7 +26,7 @@ class ContactDate:
     name: str
     date: date
     year_of_birth: Optional[int]
-    label: str  # e.g. "verjaardag", "trouwdag", "sterfdag"
+    label: str  # canonical key: "bday", "anniversary", or custom label like "sterfdag"
 
 
 class CardDAVClient:
@@ -130,11 +130,11 @@ class CardDAVClient:
     def _clean(self, value: str) -> str:
         return value.replace("\r", "").replace("&#13;", "").replace("&lt;", "<").replace("&gt;", ">").strip()
 
-    def _normalize_label(self, raw_label: str, language: str = "nl") -> str:
-        """Normalize Apple labels like _$!<Anniversary>!$_ to human readable."""
+    def _normalize_label(self, raw_label: str) -> str:
+        """Normalize Apple labels to canonical keys. Custom labels pass through as-is."""
         cleaned = self._clean(raw_label)
-        if cleaned in APPLE_LABELS:
-            return APPLE_LABELS[cleaned][language]
+        if cleaned in APPLE_LABEL_KEYS:
+            return APPLE_LABEL_KEYS[cleaned]
         # Strip _$!< and >!$_ if present
         cleaned = re.sub(r"_\$!<(.+?)>!\$_", r"\1", cleaned)
         return cleaned.lower()
