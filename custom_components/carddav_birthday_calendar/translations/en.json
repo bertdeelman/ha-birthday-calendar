@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "CardDAV Birthday Calendar",
-        "description": "Connect to your iCloud contacts to show birthdays in Home Assistant.\n\n**Important:** Use an **app-specific password**, not your regular Apple ID password.\nCreate one at [appleid.apple.com]({app_password_url}) → Sign-In and Security → App-Specific Passwords.",
+        "description": "Connect to your iCloud contacts to show birthdays and anniversaries in Home Assistant.\n\n**Important:** Use an **app-specific password**, not your regular Apple ID password.\nCreate one at [appleid.apple.com]({app_password_url}) → Sign-In and Security → App-Specific Passwords.",
         "data": {
           "username": "Apple ID (email address)",
           "password": "App-Specific Password"
@@ -26,11 +26,11 @@
         "data": {
           "language": "Language for event titles",
           "show_age": "Show age in event title",
-          "days_ahead": "Days ahead to load birthdays"
+          "days_ahead": "Days ahead to load events"
         },
         "data_description": {
-          "language": "English: 'Zusje turns 57' / Nederlands: 'Zusje is jarig (57)'",
-          "show_age": "Include age in the event title"
+          "language": "English: 'Emma birthday (32)' / Dutch: 'Emma verjaardag (32)'",
+          "show_age": "Include age in the event title (birthdays only)"
         }
       }
     }

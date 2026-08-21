@@ -46,7 +46,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     )
     if not await client.test_connection():
         raise InvalidAuth
-    return {"title": f"Birthday Calendar ({data[CONF_USERNAME]})"}
+    return {"title": "iCloud Birthday Calendar"}
 
 
 class CardDAVBirthdayCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):

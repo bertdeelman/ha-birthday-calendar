@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "CardDAV Verjaardagskalender",
+        "description": "Verbind met je iCloud-contacten om verjaardagen en jubilea te tonen in Home Assistant.\n\n**Belangrijk:** Gebruik een **app-specifiek wachtwoord**, niet je gewone Apple ID-wachtwoord.\nMaak er een aan op [appleid.apple.com]({app_password_url}) → Inloggen en beveiliging → App-specifieke wachtwoorden.",
+        "data": {
+          "username": "Apple ID (e-mailadres)",
+          "password": "App-specifiek wachtwoord"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken met iCloud. Controleer je internetverbinding.",
+      "invalid_auth": "Ongeldige inloggegevens. Gebruik een app-specifiek wachtwoord, niet je gewone Apple ID-wachtwoord.",
+      "unknown": "Onverwachte fout. Controleer de Home Assistant-logboeken."
+    },
+    "abort": {
+      "already_configured": "Dit Apple ID is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Verjaardagskalender opties",
+        "data": {
+          "language": "Taal voor evenementtitels",
+          "show_age": "Toon leeftijd in evenementtitel",
+          "days_ahead": "Aantal dagen vooruit laden"
+        },
+        "data_description": {
+          "language": "Nederlands: 'Emma verjaardag (32)' / Engels: 'Emma birthday (32)'",
+          "show_age": "Leeftijd weergeven in de evenementtitel (alleen verjaardagen)"
+        }
+      }
+    }
+  }
+}
