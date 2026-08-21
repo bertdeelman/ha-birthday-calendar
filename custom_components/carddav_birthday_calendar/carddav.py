@@ -58,6 +58,10 @@ class CardDAVClient:
             headers={"Depth": "0"}, auth=self._auth,
             allow_redirects=False, timeout=aiohttp.ClientTimeout(total=15),
         ) as resp:
+            if resp.status == 401:
+                raise ValueError("Authentication failed (401) at well-known endpoint")
+            if resp.status >= 400:
+                raise ValueError(f"Unexpected HTTP {resp.status} at well-known endpoint")
             partition = resp.headers.get("x-apple-user-partition")
             if not partition:
                 raise ValueError("Could not get iCloud partition number")
@@ -88,6 +92,10 @@ class CardDAVClient:
             data='<?xml version="1.0"?><D:propfind xmlns:D="DAV:"><D:prop><D:current-user-principal/></D:prop></D:propfind>',
             auth=self._auth, timeout=aiohttp.ClientTimeout(total=15),
         ) as resp:
+            if resp.status == 401:
+                raise ValueError("Authentication failed (401) at principal endpoint")
+            if resp.status >= 400:
+                raise ValueError(f"Unexpected HTTP {resp.status} at principal endpoint")
             text = await resp.text()
             principal = self._xml_find_in_parent(text, "current-user-principal", "href")
             if not principal:
@@ -102,6 +110,10 @@ class CardDAVClient:
             data='<?xml version="1.0"?><D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav"><D:prop><C:addressbook-home-set/></D:prop></D:propfind>',
             auth=self._auth, timeout=aiohttp.ClientTimeout(total=15),
         ) as resp:
+            if resp.status == 401:
+                raise ValueError("Authentication failed (401) at addressbook-home endpoint")
+            if resp.status >= 400:
+                raise ValueError(f"Unexpected HTTP {resp.status} at addressbook-home endpoint")
             text = await resp.text()
             home = self._xml_find_in_parent(text, "addressbook-home-set", "href")
             if not home:
@@ -135,7 +147,6 @@ class CardDAVClient:
         cleaned = self._clean(raw_label)
         if cleaned in APPLE_LABEL_KEYS:
             return APPLE_LABEL_KEYS[cleaned]
-        # Strip _$!< and >!$_ if present
         cleaned = re.sub(r"_\$!<(.+?)>!\$_", r"\1", cleaned)
         return cleaned.lower()
 
@@ -224,14 +235,12 @@ class CardDAVClient:
         return all_dates
 
     async def test_connection(self) -> bool:
+        """Test connection by doing full discovery up to addressbook home."""
         try:
-            async with self._session.request(
-                "PROPFIND", self.WELL_KNOWN,
-                headers={"Depth": "0"}, auth=self._auth,
-                allow_redirects=False, timeout=aiohttp.ClientTimeout(total=10),
-            ) as resp:
-                partition = resp.headers.get("x-apple-user-partition")
-                return partition is not None
+            base = await self._get_partition_base()
+            principal = await self._get_principal(base)
+            await self._get_addressbook_home(base, principal)
+            return True
         except Exception as err:
             _LOGGER.debug("Connection test failed: %s", err)
             return False
